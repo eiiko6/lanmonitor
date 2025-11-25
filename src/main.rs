@@ -2,8 +2,7 @@ use axum::{
     Router,
     http::{Method, header},
 };
-use std::{env::var, net::SocketAddr, time::Duration};
-use tower_governor::{GovernorLayer, governor::GovernorConfigBuilder};
+use std::{env::var, net::SocketAddr};
 use tower_http::cors::{Any, CorsLayer};
 
 mod routes;
@@ -18,28 +17,7 @@ async fn main() -> anyhow::Result<()> {
         .allow_methods([Method::GET, Method::POST])
         .allow_headers([header::AUTHORIZATION, header::CONTENT_TYPE]);
 
-    let governor_conf = GovernorConfigBuilder::default()
-        .per_second(5)
-        .burst_size(10)
-        .finish()
-        .unwrap();
-
-    let governor_limiter = governor_conf.limiter().clone();
-
-    // a separate background task to clean up
-    let interval = Duration::from_secs(60);
-    std::thread::spawn(move || {
-        loop {
-            std::thread::sleep(interval);
-            // tracing::info!("rate limiting storage size: {}", governor_limiter.len());
-            governor_limiter.retain_recent();
-        }
-    });
-
-    let app = Router::new()
-        // .merge(routes::users::routes())
-        .layer(cors)
-        .layer(GovernorLayer::new(governor_conf));
+    let app = Router::new().merge(routes::routes()).layer(cors);
 
     let port = var("LANMONITOR_SERVER_PORT").unwrap_or_else(|_| "8080".to_string());
     let addr = format!("127.0.0.1:{port}");
