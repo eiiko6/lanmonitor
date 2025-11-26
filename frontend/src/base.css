@@ -1,0 +1,40 @@
+body {
+  text-align: center;
+}
+
+table {
+  border-collapse: collapse;
+  margin-top: 0.5rem;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+thead th {
+  background: #00000014;
+  padding: 0.6rem;
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+  text-align: left;
+}
+
+tbody td {
+  padding: 0.6rem;
+  border-bottom: 1px solid #ddd;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr:hover {
+  background: #f7f7f7;
+}
+
+td, th {
+  border-right: 1px solid #ddd;
+}
+
+td:last-child,
+th:last-child {
+  border-right: none;
+}
