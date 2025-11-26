@@ -89,6 +89,7 @@ export default {
         console.error("Static system fetch failed:", e);
       }
     }
+
     async function refresh() {
       try {
         const sysRes = await fetch(daemonIP + "/system");
@@ -119,7 +120,16 @@ export default {
     onMounted(() => {
       loadStatic();
       refresh();
-      setInterval(refresh, 1000);
+      setInterval(refresh, 1000); // 1s
+
+      // Retry loading staticSystem
+      const staticRetry = setInterval(async () => {
+        if (!staticSystem.value) {
+          await loadStatic();
+        } else {
+          clearInterval(staticRetry);
+        }
+      }, 2000); // 2s
     });
 
     return { staticSystem, system, temps, formatUptime };
