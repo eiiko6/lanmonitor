@@ -7,6 +7,7 @@
         <p><strong>OS:</strong> {{ staticSystem.os_version }}</p>
         <p><strong>Kernel:</strong> {{ staticSystem.kernel_version }}</p>
         <p><strong>Distribution:</strong> {{ staticSystem.distribution_id }}</p>
+        <p><strong>Age:</strong> {{ staticSystem.os_age }} days (root partition filesystem)</p>
         <p><strong>CPU Cores:</strong> {{ staticSystem.core_count }}</p>
       </div>
       <p v-else class="loading">Loading static info…</p>

@@ -38,7 +38,6 @@ async fn get_temperatures() -> Json<Vec<Temperature>> {
     );
 
     // tracing::info!("sent components: {res:?}");
-    tracing::info!("sent temperatures");
 
     res
 }

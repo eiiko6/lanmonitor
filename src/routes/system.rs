@@ -80,7 +80,6 @@ async fn get_system() -> Json<SystemInfo> {
     });
 
     // tracing::info!("sent system: {res:?}");
-    tracing::info!("sent system");
 
     res
 }
