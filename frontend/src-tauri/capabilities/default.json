@@ -16,6 +16,8 @@
         }
       ],
       "deny": []
-    }
+    },
+    "store:default"
   ]
 }
+

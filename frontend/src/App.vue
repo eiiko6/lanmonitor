@@ -1,69 +1,101 @@
 <template>
   <div id="page">
-    <router-view v-slot="{ Component }">
+    <!-- Settings icon -->
+    <button class="settings-icon" @click="showSettings = true">
+      <i class="fa-solid fa-gear"></i>
+    </button>
+
+    <!-- IP Modal (initial) -->
+    <IPConfig v-if="showModal || showSettings" :visible="showModal || showSettings" :ip="ip" :port="port"
+      @update:visible="handleModalClose" @update:daemon="updateDaemon" />
+
+    <!-- Main content -->
+    <router-view v-if="!showModal" v-slot="{ Component }">
       <transition name="fade" mode="out-in">
-        <component :is="Component" :key="$route.path" />
+        <component :is="Component" :key="$route.path" :daemonIP="daemonIP" />
       </transition>
     </router-view>
   </div>
 </template>
 
-<script>
-import { onMounted, onUnmounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+<script lang="ts">
+import { ref, onMounted } from 'vue';
+import IPConfig from './components/IpConfig.vue';
+import { load, Store } from '@tauri-apps/plugin-store';
 
 export default {
+  components: { IPConfig },
+  setup() {
+    const showModal = ref(true);
+    const showSettings = ref(false);
+    const ip = ref('192.168.1.');
+    const port = ref(8080);
+    const daemonIP = ref('');
+    let store: Store;
+
+    const handleModalClose = () => {
+      showModal.value = false;
+      showSettings.value = false;
+    };
+
+    const updateDaemon = ({ ip: newIP, port: newPort }: { ip: string, port: number }) => {
+      ip.value = newIP;
+      port.value = newPort;
+      daemonIP.value = `http://${newIP}:${newPort}`;
+      // reload Home.vue if needed by forcing key update
+      // this works if Home.vue uses :key="$route.path + daemonIP"
+    };
+
+    onMounted(async () => {
+      store = await load('store.json', { autoSave: false, defaults: {} });
+
+      const savedIP = await store.get<{ value: string }>('ip');
+      const savedPort = await store.get<{ value: number }>('port');
+
+      if (savedIP?.value && savedPort?.value) {
+        ip.value = savedIP.value;
+        port.value = savedPort.value;
+        daemonIP.value = `http://${savedIP.value}:${savedPort.value}`;
+        showModal.value = false;
+      }
+    });
+
+    return { showModal, showSettings, ip, port, daemonIP, handleModalClose, updateDaemon };
+  },
 };
 </script>
 
 <style scoped>
 #page {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  min-height: 100vh;
-  /* min-width: 100vw; */
-  margin-top: 20px;
-  text-align: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
-  z-index: 1;
+  margin-top: 30px;
+  padding-bottom: 30px;
 }
 
-.navbar {
-  z-index: 2;
-}
-
-#footer {
+.settings-icon {
   position: fixed;
-  bottom: 0;
-  text-align: center;
-  padding: 8px;
-  font-size: .86em;
-  opacity: .82;
+  top: 12px;
+  right: 12px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  z-index: 15;
+  color: #fff;
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-
-@media (max-width: 700px) {
+@media screen and (max-width: 720px) {
   #page {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    background-attachment: scroll;
-    transform: none;
-    overflow-x: hidden;
-    width: 100%;
+    margin-top: 30px;
+    padding-bottom: 30px;
+  }
+
+  .settings-icon {
+    top: 42px;
+  }
+}
+
+@media screen and (max-height: 720px) {
+  .settings-icon {
+    top: 30px;
+    right: 58px;
   }
 }
 </style>

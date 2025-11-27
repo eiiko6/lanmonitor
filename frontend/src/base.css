@@ -36,6 +36,10 @@ body {
   min-height: 100%;
 }
 
+h2 {
+  margin-top: 0;
+}
+
 table {
   border-collapse: collapse;
   margin-top: 0.5rem;
@@ -73,7 +77,66 @@ th:last-child {
   border-right: none;
 }
 
+button {
+  padding: 0.8rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: none;
+  background: #43518E33;
+  backdrop-filter: blur(50px) brightness(85%) saturate(120%);
+  border: 1px solid #43518e;
+  box-shadow:
+    inset 0 0 10px #dddddd18,
+    0 4px 30px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+button:hover {
+  background: #2c377a;
+  border-color: #7484CC;
+  transform: scale(1.05);
+}
+
+label {
+  font-weight: 500;
+  font-size: 0.95rem;
+  margin-right: 18px;
+}
+
+input {
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  color: #fff;
+  border-radius: 10px;
+  background: #43518E33;
+  border: 1px solid #43518e;
+  outline: none;
+  transition: border 0.2s, box-shadow 0.2s;
+  margin-bottom: 18px;
+}
+
+input:focus {
+  border-color: #7484CC;
+  transform: scale(1.05);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
 @media screen and (max-width: 720px) {
+  body {
+    font-size: 0.8rem;
+  }
+  table {
+    font-size: 0.6rem;
+  }
+}
+
+@media screen and (max-height: 720px) {
   body {
     font-size: 0.8rem;
   }

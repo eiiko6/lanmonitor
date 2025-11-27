@@ -1,6 +1,6 @@
 <template>
   <div class="monitor">
-    <div class="column">
+    <div class="row">
       <section class="block">
         <h2>Static System</h2>
 
@@ -75,16 +75,21 @@ import { fetch } from '@tauri-apps/plugin-http'
 export default {
   name: "Monitor",
 
-  setup() {
-    const daemonIP = "http://192.168.1.226:8080"; // TODO: Ask the user
+  props: {
+    daemonIP: {
+      type: String,
+      required: true
+    }
+  },
 
+  setup(props) {
     const staticSystem = ref<any>(null);
     const system = ref<any>(null);
     const temps = ref<any[]>([]);
 
     async function loadStatic() {
       try {
-        const res = await fetch(daemonIP + "/static-system");
+        const res = await fetch(props.daemonIP + "/static-system");
         staticSystem.value = await res.json();
       } catch (e) {
         console.error("Static system fetch failed:", e);
@@ -93,14 +98,13 @@ export default {
 
     async function refresh() {
       try {
-        const sysRes = await fetch(daemonIP + "/system");
-        const tempRes = await fetch(daemonIP + "/temperatures");
+        const sysRes = await fetch(props.daemonIP + "/system");
+        const tempRes = await fetch(props.daemonIP + "/temperatures");
 
         system.value = await sysRes.json();
         temps.value = (await tempRes.json()).sort((a: any, b: any) =>
           a.id.localeCompare(b.id)
         );
-        console.log(temps.value)
       } catch (e) {
         console.error("Monitoring fetch failed:", e);
       }
@@ -142,9 +146,10 @@ export default {
 .monitor {
   display: flex;
   flex-wrap: wrap;
+  flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  /* align-items: center; */
+  align-items: center;
   gap: 2rem;
   margin: 0 auto;
   font-family: sans-serif;
@@ -152,9 +157,11 @@ export default {
   text-align: left;
 }
 
-.column {
+.row {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-direction: row;
   gap: 2rem;
 }
 
@@ -170,12 +177,14 @@ export default {
     0 4px 30px rgba(0, 0, 0, 0.1);
 }
 
-h2 {
-  margin-top: 0;
-}
-
 .loading {
   opacity: 0.6;
   /* font-style: italic; */
+}
+
+@media screen and (max-width: 720px) {
+  .block {
+    padding: 1.2rem;
+  }
 }
 </style>
