@@ -70,12 +70,13 @@
 
 <script lang="ts">
 import { ref, onMounted } from "vue";
+import { fetch } from '@tauri-apps/plugin-http'
 
 export default {
   name: "Monitor",
 
   setup() {
-    const daemonIP = "http://192.168.1.183:8081";
+    const daemonIP = "http://192.168.1.226:8080"; // TODO: Ask the user
 
     const staticSystem = ref<any>(null);
     const system = ref<any>(null);
