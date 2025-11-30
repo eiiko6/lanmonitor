@@ -1,5 +1,5 @@
 <template>
-  <div class="monitor">
+  <div id="content">
     <div class="row">
       <section class="block">
         <h2>Static System</h2>
@@ -79,6 +79,10 @@ export default {
     daemonIP: {
       type: String,
       required: true
+    },
+    refreshInterval: {
+      type: Number,
+      default: 1000
     }
   },
 
@@ -88,7 +92,7 @@ export default {
     const temps = ref<any[]>([]);
 
     let failureStart: number | null = null;
-    const TIMEOUT_LIMIT = 3000; // 3s
+    const TIMEOUT_LIMIT = 2 * props.refreshInterval;
 
     const serverReachable = ref(true);
 
@@ -156,9 +160,9 @@ export default {
         if (!staticSystem.value) {
           await loadStatic();
         }
-      }, 2000); // 2s
+      }, props.refreshInterval);
 
-      setInterval(refresh, 1000);
+      setInterval(refresh, props.refreshInterval);
     });
 
     return { staticSystem, system, temps, formatUptime };
@@ -167,40 +171,6 @@ export default {
 </script>
 
 <style scoped>
-.monitor {
-  display: flex;
-  flex-wrap: wrap;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  align-items: center;
-  gap: 2rem;
-  margin: 0 auto;
-  font-family: sans-serif;
-  padding: 1rem;
-  text-align: left;
-}
-
-.row {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  flex-direction: row;
-  gap: 2rem;
-}
-
-
-.block {
-  padding: 2rem;
-  border-radius: 15px;
-  background: #43518E33;
-  backdrop-filter: blur(50px) brightness(85%) saturate(120%);
-  border: 1px solid #dddddd44;
-  box-shadow:
-    inset 0 0 15px #dddddd35,
-    0 4px 30px rgba(0, 0, 0, 0.1);
-}
-
 .loading {
   opacity: 0.6;
   /* font-style: italic; */
