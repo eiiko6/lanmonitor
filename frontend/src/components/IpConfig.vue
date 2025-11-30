@@ -1,8 +1,10 @@
 <template>
   <div v-if="visible" class="modal-overlay" @click="overlayClick">
     <div class="modal">
-      <h2>Daemon Settings</h2>
-      <p>You would get this from the daemon<br>running on your computer.</p>
+      <h2 v-if="!errorMessage">Daemon Settings</h2>
+      <h2 v-else>{{ errorMessage }}</h2>
+      <p v-if="!errorMessage">You would get this from the daemon<br>running on your computer.</p>
+      <p v-else>Please verify the IP.<br>You would get this from the daemon<br>running on your computer.</p>
       <div class="input-group">
         <label>IP:</label>
         <input v-model="localIP" type="text" />
@@ -27,7 +29,8 @@ export default defineComponent({
   props: {
     visible: { type: Boolean, default: false },
     ip: { type: String, required: true },
-    port: { type: Number, required: true }
+    port: { type: Number, required: true },
+    errorMessage: { type: String, required: false }
   },
   emits: ['update:visible', 'update:daemon'],
   setup(props, { emit }) {

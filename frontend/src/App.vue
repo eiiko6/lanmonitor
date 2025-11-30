@@ -7,7 +7,7 @@
 
     <!-- IP Modal (initial) -->
     <IPConfig v-if="showModal || showSettings" :visible="showModal || showSettings" :ip="ip" :port="port"
-      @update:visible="handleModalClose" @update:daemon="updateDaemon" />
+      :errorMessage="errorMessage" @update:visible="handleModalClose" @update:daemon="updateDaemon" />
 
     <!-- Main content -->
     <router-view v-if="!showModal" v-slot="{ Component }">
@@ -33,6 +33,13 @@ export default {
     const daemonIP = ref('');
     let store: Store;
 
+    const errorMessage = ref("");
+    const daemonUnreachable = () => {
+      errorMessage.value = "The daemon is unreachable.";
+      showModal.value = true;
+      showSettings.value = false;
+    };
+
     const handleModalClose = () => {
       showModal.value = false;
       showSettings.value = false;
@@ -47,6 +54,10 @@ export default {
     };
 
     onMounted(async () => {
+      window.addEventListener("daemon-unreachable", () => {
+        daemonUnreachable();
+      });
+
       store = await load('store.json', { autoSave: false, defaults: {} });
 
       const savedIP = await store.get<{ value: string }>('ip');
@@ -58,9 +69,10 @@ export default {
         daemonIP.value = `http://${savedIP.value}:${savedPort.value}`;
         showModal.value = false;
       }
+
     });
 
-    return { showModal, showSettings, ip, port, daemonIP, handleModalClose, updateDaemon };
+    return { showModal, showSettings, ip, port, daemonIP, handleModalClose, updateDaemon, errorMessage, daemonUnreachable };
   },
 };
 </script>

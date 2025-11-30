@@ -87,6 +87,11 @@ export default {
     const system = ref<any>(null);
     const temps = ref<any[]>([]);
 
+    let failureStart: number | null = null;
+    const TIMEOUT_LIMIT = 3000; // 3s
+
+    const serverReachable = ref(true);
+
     async function loadStatic() {
       try {
         const res = await fetch(props.daemonIP + "/static-system");
@@ -97,6 +102,8 @@ export default {
     }
 
     async function refresh() {
+      if (!serverReachable.value) return;
+
       try {
         const sysRes = await fetch(props.daemonIP + "/system");
         const tempRes = await fetch(props.daemonIP + "/temperatures");
@@ -105,8 +112,24 @@ export default {
         temps.value = (await tempRes.json()).sort((a: any, b: any) =>
           a.id.localeCompare(b.id)
         );
+
+        // server responded: reset failure timer
+        failureStart = null;
+
       } catch (e) {
         console.error("Monitoring fetch failed:", e);
+
+        // first failure: start timer
+        if (!failureStart) {
+          failureStart = Date.now();
+          return;
+        }
+
+        // continuous failures: notify App.vue
+        if (Date.now() - failureStart > TIMEOUT_LIMIT) {
+          serverReachable.value = false;
+          window.dispatchEvent(new CustomEvent("daemon-unreachable"));
+        }
       }
     }
 
@@ -125,16 +148,17 @@ export default {
     onMounted(() => {
       loadStatic();
       refresh();
-      setInterval(refresh, 1000); // 1s
+
+      serverReachable.value = true;
 
       // Retry loading staticSystem
-      const staticRetry = setInterval(async () => {
+      setInterval(async () => {
         if (!staticSystem.value) {
           await loadStatic();
-        } else {
-          clearInterval(staticRetry);
         }
       }, 2000); // 2s
+
+      setInterval(refresh, 1000);
     });
 
     return { staticSystem, system, temps, formatUptime };
