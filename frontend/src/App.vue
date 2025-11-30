@@ -13,7 +13,7 @@
     <router-view v-if="errorMessage == ''" v-slot="{ Component }">
       <transition name="fade" mode="out-in">
         <component :is="Component" :key="$route.path" :daemonIP="daemonIP" :refreshInterval="refreshInterval"
-          @open-ip-config="daemonSettings" />
+          @open-ip-config="daemonSettings" @update:refresh-interval="updateRefreshInterval" />
       </transition>
     </router-view>
 
@@ -37,7 +37,7 @@ export default {
     const daemonIP = ref('');
     let store: Store;
 
-    const refreshInterval = 1000;
+    const refreshInterval = ref(1000);
 
     const errorMessage = ref("");
 
@@ -72,6 +72,10 @@ export default {
       daemonIP.value = `http://${newIP}:${newPort}`;
     };
 
+    const updateRefreshInterval = (interval: number) => {
+      refreshInterval.value = interval;
+    };
+
     onMounted(async () => {
       window.addEventListener("daemon-unreachable", () => {
         daemonUnreachable();
@@ -91,7 +95,7 @@ export default {
 
     });
 
-    return { showIPSettings, ip, port, daemonIP, handleModalClose, updateDaemon, errorMessage, daemonUnreachable, daemonSettings, handleSettingsClick, refreshInterval };
+    return { showIPSettings, ip, port, daemonIP, handleModalClose, updateDaemon, errorMessage, daemonUnreachable, daemonSettings, handleSettingsClick, refreshInterval, updateRefreshInterval };
   },
 };
 </script>
